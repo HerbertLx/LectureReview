@@ -25,6 +25,7 @@ dist/catalog.json
 *.ppt
 *.pptx
 *.png
+!docs/images/*.png
 
 # Tooling
 .venv/

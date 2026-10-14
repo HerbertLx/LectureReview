@@ -15,6 +15,7 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlsplit, unquote
 import uploads
+from launcher import instance_id
 
 ROOT = Path(__file__).resolve().parent
 DIST = ROOT / 'dist'
@@ -325,6 +326,7 @@ class Handler(SimpleHTTPRequestHandler):
         try: self.wfile.write(body)
         except (BrokenPipeError, ConnectionResetError): pass
     def do_GET(self):
+        if self.path=='/api/health':return self.reply(200,{'product':'LectureReview','instance':instance_id(ROOT)})
         if self.path.startswith('/api/upload/jobs/'):
             try:result=uploads.status(self.path.rsplit('/',1)[-1])
             except ValueError:return self.reply(400,{'error':'无效任务'})
