@@ -308,7 +308,7 @@ class Handler(SimpleHTTPRequestHandler):
         if LECTURE!=1 or DECK_ID:
             relative=urlsplit(path).path.lstrip('/') or 'index.html'
             shared=(SHARED_DIST/relative).resolve()
-            if (not Path(local).exists() or relative=='index.html') and shared.is_relative_to(SHARED_DIST.resolve()) and (relative.startswith('vendor/') or shared.suffix in ('.js','.css') or relative=='index.html'):
+            if shared.is_relative_to(SHARED_DIST.resolve()) and (relative.startswith('vendor/') or shared.suffix in ('.js','.css') or relative=='index.html'):
                 return str(shared)
         if DIST!=ASSET_DIST:
             relative=urlsplit(path).path.lstrip('/')
@@ -339,12 +339,12 @@ class Handler(SimpleHTTPRequestHandler):
         if self.path=='/catalog.json':
             host=urlsplit('http://'+self.headers.get('Host','127.0.0.1')).hostname
             entries=[
-                {'id':'geb3302-l1','course':'GEB3302','title':'Lecture 1 · Introduction','url':f'http://{host}:8767/'},
-                {'id':'geb3302-l2','course':'GEB3302','title':'Lecture 2 · Problems in classical physics','url':f'http://{host}:8769/'},
-                {'id':'geb3302-l3','course':'GEB3302','title':'Lecture 3','url':f'http://{host}:8770/'},
-                {'id':'geb3302-l4','course':'GEB3302','title':'Lecture 4','url':f'http://{host}:8771/'}]
+                {'id':'geb3302-l1','course':'GEB3302','title':'Lecture 1 · Introduction','url':'/decks/geb3302-l1/'},
+                {'id':'geb3302-l2','course':'GEB3302','title':'Lecture 2 · Problems in classical physics','url':'/decks/geb3302-l2/'},
+                {'id':'geb3302-l3','course':'GEB3302','title':'Lecture 3','url':'/decks/geb3302-l3/'},
+                {'id':'geb3302-l4','course':'GEB3302','title':'Lecture 4','url':'/decks/geb3302-l4/'}]
             entries=[entry for number,entry in enumerate(entries,1) if (ROOT/'data'/f'lecture{number}_context.json').exists()]
-            entries.extend({'id':entry['id'],'course':entry['course'],'title':entry['title'],'url':f'http://{host}:{entry["port"]}/'} for entry in uploads.manifests())
+            entries.extend({'id':entry['id'],'course':entry['course'],'title':entry['title'],'url':'/decks/'+entry['id']+'/'} for entry in uploads.manifests())
             return self.reply(200,{'current':DECK_ID or (f'geb3302-l{LECTURE}' if CONTEXT.exists() else 'library'),'decks':entries})
         if self.path=='/deck.json' and not (DIST/'deck.json').exists():
             return self.reply(200,{'id':'library','count':0,'titles':{},'title':'LectureReview','course':'我的课件','pdf':''})
@@ -457,7 +457,6 @@ if __name__ == '__main__':
         DIST=folder/'dist';ASSET_DIST=DIST
         CONTEXT=folder/'context.json';LAYOUT=folder/'layout.json'
         CONTENT=folder/'content.json';OUTLINE=folder/'outline.json';CHAT_HISTORY=folder/'chat_history.json'
-    if not options.deck:uploads.restore_services()
     print(f'Lecture {LECTURE}: http://0.0.0.0:{options.port}/', flush=True)
     print('Model: '+MODEL, flush=True)
     ThreadingHTTPServer(('0.0.0.0',options.port), Handler).serve_forever()

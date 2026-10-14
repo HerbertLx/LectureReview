@@ -106,7 +106,7 @@
 3. 将启动窗口显示的局域网网址输入 iPad 浏览器。
 4. 若访问被阻止，自行检查 Windows 防火墙；程序不会自动开放端口。
 
-上传课件在 **8780–8899** 范围分配独立阅读端口，切换后网址可能改变。如果首页能打开而某份课件打不开，请检查对应端口是否允许访问。
+全部课件共用一个服务和端口，切换课件仅改变网址的 `/decks/课件ID/` 路径，无需为每份 PDF 额外启动服务或开放端口。PDF 导入期间会临时运行一个处理进程，完成后自动退出。
 
 ## 保存在哪里？怎样备份？
 
@@ -149,7 +149,7 @@ Token 只允许在电脑 localhost 页面替换，不返回原值、不放入模
 
 **怎么停止？**
 
-启动窗口按 **Ctrl+C** 停止本次入口。上传课件的后台阅读服务可能仍在运行；再次启动会复用/恢复已有课件服务。关闭电脑后，需要重新运行启动脚本。
+启动窗口按 **Ctrl+C** 停止本次阅读服务。所有课件共用此服务，关闭电脑后，需要重新运行启动脚本；缓存不会丢失。
 
 ## 进阶启动
 
@@ -183,12 +183,12 @@ $env:DEEPSEEK_KEY_FILE = 'E:\your-private-keys\deepseek.txt'
 ## 开发与测试
 
 ```powershell
-.venv\Scripts\python -m unittest test_cache test_uploads test_launcher
+.venv\Scripts\python -m unittest test_cache test_uploads test_launcher test_unified
 ```
 
 测试使用临时数据和模拟模型，不读取真实密钥、不调用付费模型。`ci-tests.example.yml` 提供 GitHub Actions 模板，启用时需要有相应权限的账号将它放到 `.github/workflows/tests.yml`。
 
-代码入口：`server.py` 为 HTTP/AI 服务，`uploads.py` 为 PDF 导入和课件管理，`launcher.py` 为启动管理，`dist/` 为阅读界面。
+代码入口：`unified.py` 为统一 HTTP 入口，每份课件独立隔离状态；`server.py` 为阅读/AI 处理逻辑，`uploads.py` 为 PDF 导入和课件管理，`launcher.py` 为启动管理，`dist/` 为共享阅读界面。
 
 ## 第三方组件
 

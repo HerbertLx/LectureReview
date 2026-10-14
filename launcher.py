@@ -49,7 +49,7 @@ def main():
     try:
         port,reused=choose_port(args.port);url=f'http://127.0.0.1:{port}/'
         if not reused:
-            process=subprocess.Popen([sys.executable,'-u',str(ROOT/'server.py'),'--port',str(port)],cwd=ROOT)
+            process=subprocess.Popen([sys.executable,'-u',str(ROOT/'unified.py'),'--port',str(port)],cwd=ROOT)
             deadline=time.monotonic()+30
             while time.monotonic()<deadline:
                 if process.poll() is not None:raise RuntimeError('服务启动失败，请查看上面的错误信息。')

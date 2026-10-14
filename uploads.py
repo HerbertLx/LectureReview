@@ -4,7 +4,6 @@ import json
 import os
 from pathlib import Path
 import re
-import socket
 import subprocess
 import sys
 import threading
@@ -59,20 +58,6 @@ def library_lock():
             if os.name=='nt':stream.seek(0);msvcrt.locking(stream.fileno(),msvcrt.LK_UNLCK,1)
             else:fcntl.flock(stream,fcntl.LOCK_UN)
 
-def launch(manifest):
-    port=manifest['port']
-    with socket.socket() as probe:
-        if probe.connect_ex(('127.0.0.1',port))==0:return
-    log=directory(manifest['id'])/'service.log'
-    with log.open('ab') as output:
-        subprocess.Popen([sys.executable,str(ROOT/'server.py'),'--deck',manifest['id'],'--port',str(port)],
-            cwd=ROOT,stdin=subprocess.DEVNULL,stdout=output,stderr=output,
-            creationflags=subprocess.CREATE_NO_WINDOW if os.name=='nt' else 0)
-
-def restore_services():
-    with library_lock():
-        for manifest in manifests():launch(manifest)
-
 def import_pdf(deck_id):
     from extract_layout import pymupdf,regions
     folder=directory(deck_id)
@@ -94,17 +79,9 @@ def import_pdf(deck_id):
         write_json(folder/'layout.json',layout)
         write_json(dist/'deck.json',{'id':deck_id,'count':len(doc),'titles':titles,'title':request['title'],'course':request['course'],'pdf':'original.pdf'})
         with library_lock():
-            reserved={entry['port'] for entry in manifests()};port=None
-            for candidate in range(8780,8900):
-                if candidate in reserved:continue
-                with socket.socket() as probe:
-                    try:probe.bind(('0.0.0.0',candidate));port=candidate;break
-                    except OSError:continue
-            if port is None:raise ValueError('没有可用课件端口')
-            manifest={**request,'id':deck_id,'port':port,'count':len(doc),'created_at':time.time()}
+            manifest={**request,'id':deck_id,'count':len(doc),'created_at':time.time()}
             write_json(folder/'manifest.json',manifest)
-            launch(manifest)
-        write_json(folder/'status.json',{'id':deck_id,'state':'ready','done':len(doc),'total':len(doc),'port':port})
+        write_json(folder/'status.json',{'id':deck_id,'state':'ready','done':len(doc),'total':len(doc)})
     except Exception as error:
         write_json(folder/'status.json',{'id':deck_id,'state':'failed','error':str(error) if isinstance(error,ValueError) else 'PDF处理失败，请确认文件完整并重试'})
 

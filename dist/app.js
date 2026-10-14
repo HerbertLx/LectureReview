@@ -7,7 +7,7 @@ function renderChatHistory(){
   $('answer').innerHTML=turns.map(turn=>'<section class="chat-turn"><p class="chat-question">'+escapeHTML(turn.question)+'</p><div class="md">'+markdown(turn.answer)+'</div></section>').join('')+(chatPendingPage===page?'<p class="status">正在回答…</p>':'')+(chatError?'<p class="status">'+escapeHTML(chatError)+'</p>':'');
 }
 let busy = false, apiReady = false, pending = null, catalog = null, partJob = null, partTimer = null;
-const lectureId=location.port==='8771'?'l4':location.port==='8770'?'l3':location.port==='8769'?'l2':'l1';
+const lectureId=location.pathname.match(/^\/decks\/([^/]+)\//)?.[1] || 'geb3302-l1';
 let pageKey='geb-'+lectureId+'-page', jobKey=lectureId==='l1'?'geb-part-job':'geb-'+lectureId+'-part-job';
 let page = Math.max(1, Number(localStorage.getItem(pageKey)) || 1);
 const escapeHTML = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
