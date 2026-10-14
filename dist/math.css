@@ -1,0 +1,3 @@
+.md .katex-display {overflow-x:auto;overflow-y:hidden;padding: .35em 0;margin:.7em 0;}
+.md .katex {font-size:1.08em;}
+.lecture-math-source[data-display="true"] {display:block;max-width:100%;}

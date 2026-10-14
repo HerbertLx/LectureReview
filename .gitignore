@@ -1,0 +1,37 @@
+# Credentials and environment
+.secrets/
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+keys/
+github.txt
+deepseek.txt
+
+# Private course documents and generated state
+uploaded-decks/
+data/
+backups/
+layout-preview/
+lecture*-dist/
+dist/pages/
+dist/*.pdf
+dist/*content.json
+dist/*outline.json
+dist/deck.json
+dist/catalog.json
+*.pdf
+*.ppt
+*.pptx
+*.png
+
+# Tooling
+.venv/
+__pycache__/
+*.py[cod]
+*.log
+.setup/
+.pytest_cache/
+.DS_Store
+Thumbs.db
